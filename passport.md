@@ -50,6 +50,8 @@ The Passport service provider registers its own database migration directory wit
 
     php artisan migrate
 
+> {note} If you are not going to use Passport's default migrations, you should call the `Passport::ignoreMigrations` method in the `register` method of your `AppServiceProvider`. You may export the default migrations using `php artisan vendor:publish --tag=passport-migrations`.
+
 Next, you should run the `passport:install` command. This command will create the encryption keys needed to generate secure access tokens. In addition, the command will create "personal access" and "password grant" clients which will be used to generate access tokens:
 
     php artisan passport:install
@@ -145,7 +147,7 @@ The published components will be placed in your `resources/assets/js/components`
         require('./components/passport/PersonalAccessTokens.vue')
     );
 
-After registering the components, make sure to run `gulp` to recompile your assets. Once you have recompiled your assets, you may drop the components into one of your application's templates to get started creating clients and personal access tokens:
+After registering the components, make sure to run `npm run dev` to recompile your assets. Once you have recompiled your assets, you may drop the components into one of your application's templates to get started creating clients and personal access tokens:
 
     <passport-clients></passport-clients>
     <passport-authorized-clients></passport-authorized-clients>
