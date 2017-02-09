@@ -72,7 +72,7 @@ The `webpack.mix.js` file is your entry point for all asset compilation. Think o
 <a name="less"></a>
 ### Less
 
-The `less` method may be used to compile [Less](http://lesscss.org/) into CSS. Let's compile our primary `app.less` file to `public/css/app.less`.
+The `less` method may be used to compile [Less](http://lesscss.org/) into CSS. Let's compile our primary `app.less` file to `public/css/app.css`.
 
     mix.less('resources/assets/less/app.less', 'public/css');
 
@@ -83,7 +83,7 @@ Multiple calls to the `less` method may be used to compile multiple files:
 
 If you wish to customize the file name of the compiled CSS, you may pass a full file path as the second argument to the `less` method:
 
-    mix.less('resouces/assets/less/app.less', 'public/stylesheets/styles.css');
+    mix.less('resources/assets/less/app.less', 'public/stylesheets/styles.css');
 
 <a name="sass"></a>
 ### Sass
@@ -94,7 +94,7 @@ The `sass` method allows you to compile [Sass](http://sass-lang.com/) into CSS. 
 
 Again, like the `less` method, you may compile multiple Sass files into their own respective CSS files and even customize the output directory of the resulting CSS:
 
-    mix.sass('resources/assets/sass/app.sass', 'public/css');
+    mix.sass('resources/assets/sass/app.sass', 'public/css')
        .sass('resources/assets/sass/admin.sass', 'public/css/admin');
 
 <a name="plain-css"></a>
