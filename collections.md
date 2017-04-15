@@ -3,7 +3,6 @@
 - [Introduction](#introduction)
     - [Creating Collections](#creating-collections)
 - [Available Methods](#available-methods)
-- [Higher Order Messages](#higher-order-messages)
 
 <a name="introduction"></a>
 ## Introduction
@@ -85,7 +84,6 @@ For the remainder of this documentation, we'll discuss each method available on 
 [merge](#method-merge)
 [min](#method-min)
 [mode](#method-mode)
-[nth](#method-nth)
 [only](#method-only)
 [partition](#method-partition)
 [pipe](#method-pipe)
@@ -110,8 +108,6 @@ For the remainder of this documentation, we'll discuss each method available on 
 [split](#method-split)
 [sum](#method-sum)
 [take](#method-take)
-[tap](#method-tap)
-[times](#method-times)
 [toArray](#method-toarray)
 [toJson](#method-tojson)
 [transform](#method-transform)
@@ -119,13 +115,10 @@ For the remainder of this documentation, we'll discuss each method available on 
 [unique](#method-unique)
 [uniqueStrict](#method-uniquestrict)
 [values](#method-values)
-[when](#method-when)
 [where](#method-where)
 [whereStrict](#method-wherestrict)
 [whereIn](#method-wherein)
 [whereInStrict](#method-whereinstrict)
-[whereNotIn](#method-wherenotin)
-[whereNotInStrict](#method-wherenotinstrict)
 [zip](#method-zip)
 
 </div>
@@ -330,13 +323,19 @@ If you would like to stop iterating through the items, you may return `false` fr
 <a name="method-every"></a>
 #### `every()` {#collection-method}
 
-The `every` method may be used to verify that all elements of a collection pass a given truth test:
+The `every` method creates a new collection consisting of every n-th element:
 
-    collect([1, 2, 3, 4])->every(function ($value, $key) {
-        return $value > 2;
-    });
+    $collection = collect(['a', 'b', 'c', 'd', 'e', 'f']);
 
-    // false
+    $collection->every(4);
+
+    // ['a', 'e']
+
+You may optionally pass an offset as the second argument:
+
+    $collection->every(4, 1);
+
+    // ['b', 'f']
 
 <a name="method-except"></a>
 #### `except()` {#collection-method}
@@ -820,23 +819,6 @@ The `mode` method returns the [mode value](https://en.wikipedia.org/wiki/Mode_(s
 
     // [1]
 
-<a name="method-nth"></a>
-#### `nth()` {#collection-method}
-
-The `nth` method creates a new collection consisting of every n-th element:
-
-    $collection = collect(['a', 'b', 'c', 'd', 'e', 'f']);
-
-    $collection->nth(4);
-
-    // ['a', 'e']
-
-You may optionally pass an offset as the second argument:
-
-    $collection->nth(4, 1);
-
-    // ['b', 'f']
-
 <a name="method-only"></a>
 #### `only()` {#collection-method}
 
@@ -990,7 +972,7 @@ The `random` method returns a random item from the collection:
 
     // 4 - (retrieved randomly)
 
-You may optionally pass an integer to `random` to specify how many items you would like to randomly retrieve. A collection of items is always returned when explicitly passing the number of items you wish to receive:
+You may optionally pass an integer to `random` to specify how many items you would like to randomly retrieve. If that integer is more than `1`, a collection of items is returned:
 
     $random = $collection->random(3);
 
@@ -1307,49 +1289,6 @@ You may also pass a negative integer to take the specified amount of items from 
 
     // [4, 5]
 
-<a name="method-tap"></a>
-#### `tap()` {#collection-method}
-
-The `tap` method passes the collection to the given callback, allowing you to "tap" into the collection at a specific point and do something with the items while not affecting the collection itself:
-
-    collect([2, 4, 3, 1, 5])
-        ->sort()
-        ->tap(function ($collection) {
-            Log::debug('Values after sorting', $collection->values()->toArray());
-        })
-        ->shift();
-
-    // 1
-
-<a name="method-times"></a>
-#### `times()` {#collection-method}
-
-The static `times` method creates a new collection by invoking the callback a given amount of times:
-
-    $collection = Collection::times(10, function ($number) {
-        return $number * 9;
-    });
-
-    $collection->all();
-
-    // [9, 18, 27, 36, 45, 54, 63, 72, 81, 90]
-
-This method can be useful when combined with factories to create [Eloquent](/docs/{{version}}/eloquent) models:
-
-    $categories = Collection::times(3, function ($number) {
-        return factory(Category::class)->create(['name' => 'Category #'.$number]);
-    });
-
-    $categories->all();
-
-    /*
-        [
-            ['id' => 1, 'name' => 'Category #1'],
-            ['id' => 2, 'name' => 'Category #2'],
-            ['id' => 3, 'name' => 'Category #3'],
-        ]
-    */
-
 <a name="method-toarray"></a>
 #### `toArray()` {#collection-method}
 
@@ -1486,22 +1425,6 @@ The `values` method returns a new collection with the keys reset to consecutive 
             1 => ['product' => 'Desk', 'price' => 200],
         ]
     */
-
-<a name="method-when"></a>
-#### `when()` {#collection-method}
-
-The `when` method will execute the given callback when the first argument given to the method evaluates to `true`:
-
-    $collection = collect([1, 2, 3]);
-
-    $collection->when(true, function ($collection) {
-        return $collection->push(4);
-    });
-
-    $collection->all();
-
-    // [1, 2, 3, 4]
-
 <a name="method-where"></a>
 #### `where()` {#collection-method}
 
@@ -1562,36 +1485,6 @@ The `whereIn` method uses "loose" comparisons when checking item values, meaning
 
 This method has the same signature as the [`whereIn`](#method-wherein) method; however, all values are compared using "strict" comparisons.
 
-<a name="method-wherenotin"></a>
-#### `whereNotIn()` {#collection-method}
-
-The `whereNotIn` method filters the collection by a given key / value not contained within the given array:
-
-    $collection = collect([
-        ['product' => 'Desk', 'price' => 200],
-        ['product' => 'Chair', 'price' => 100],
-        ['product' => 'Bookcase', 'price' => 150],
-        ['product' => 'Door', 'price' => 100],
-    ]);
-
-    $filtered = $collection->whereNotIn('price', [150, 200]);
-
-    $filtered->all();
-
-    /*
-        [
-            ['product' => 'Chair', 'price' => 100],
-            ['product' => 'Door', 'price' => 100],
-        ]
-    */
-
-The `whereNotIn` method uses "loose" comparisons when checking item values, meaning a string with an integer value will be considered equal to an integer of the same value. Use the [`whereNotInStrict`](#method-wherenotinstrict) method to filter using "strict" comparisons.
-
-<a name="method-wherenotinstrict"></a>
-#### `whereNotInStrict()` {#collection-method}
-
-This method has the same signature as the [`whereNotIn`](#method-wherenotin) method; however, all values are compared using "strict" comparisons.
-
 <a name="method-zip"></a>
 #### `zip()` {#collection-method}
 
@@ -1604,20 +1497,3 @@ The `zip` method merges together the values of the given array with the values o
     $zipped->all();
 
     // [['Chair', 100], ['Desk', 200]]
-
-<a name="higher-order-messages"></a>
-## Higher Order Messages
-
-Collections also provide support for "higher order messages", which are short-cuts for performing common actions on collections. The collection methods that provide higher order messages are: `contains`, `each`, `every`, `filter`, `first`, `flatMap`, `map`, `partition`, `reject`, `sortBy`, `sortByDesc`, and `sum`.
-
-Each higher order message can be accessed as a dynamic property on a collection instance. For instance, let's use the `each` higher order message to call a method on each object within a collection:
-
-    $users = User::where('votes', '>', 500)->get();
-
-    $users->each->markAsVip();
-
-Likewise, we can use the `sum` higher order message to gather the total number of "votes" for a collection of users:
-
-    $users = User::where('group', 'Development')->get();
-
-    return $users->sum->votes;
