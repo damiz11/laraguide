@@ -18,7 +18,7 @@
 
 Laravel's versioning scheme maintains the following convention: `paradigm.minor.patch`. Minor framework releases are released every six months (January and July), while patch releases may be released as often as every week. Patch releases should **never** contain breaking changes.
 
-When referencing the Laravel framework or it's components from your application or package, you should always use a version constraint such as `5.4.*`, since minor releases of Laravel do include breaking changes. However, we strive to always ensure you may update to a new minor release in one day or less.
+When referencing the Laravel framework or its components from your application or package, you should always use a version constraint such as `5.4.*`, since minor releases of Laravel do include breaking changes. However, we strive to always ensure you may update to a new minor release in one day or less.
 
 Paradigm shifting releases are separated by many years and represent fundamental shifts in the framework's architecture and conventions. Currently, there is no paradigm shifting release under development.
 
@@ -943,7 +943,7 @@ The base Laravel controller utilizes the new `DispatchesCommands` trait, allowin
 
     $this->dispatch(new PurchasePodcastCommand($user, $podcast));
 
-Of course, you may also use commands for tasks that are executed synchronously (are not queued). In fact, using commands is a great way to encapsulate complex tasks your application needs to perform. For more information, check out the [command bus](/docs/{{version}}/bus) documentation.
+Of course, you may also use commands for tasks that are executed synchronously (are not queued). In fact, using commands is a great way to encapsulate complex tasks your application needs to perform. For more information, check out the [command bus](/docs/5.0/bus) documentation.
 
 ### Database Queue
 
@@ -973,7 +973,7 @@ Instead of a variety of confusing, nested environment configuration directories,
 
 Laravel Elixir, by Jeffrey Way, provides a fluent, expressive interface to compiling and concatenating your assets. If you've ever been intimidated by learning Grunt or Gulp, fear no more. Elixir makes it a cinch to get started using Gulp to compile your Less, Sass, and CoffeeScript. It can even run your tests for you!
 
-For more information on Elixir, check out the [full documentation](/docs/{{version}}/elixir).
+For more information on Elixir, check out the [full documentation](/docs/5.3/elixir).
 
 ### Laravel Socialite
 
@@ -1130,7 +1130,7 @@ The full change list for this release by running the `php artisan changes` comma
 
 ### New SSH Component
 
-An entirely new `SSH` component has been introduced with this release. This feature allows you to easily SSH into remote servers and run commands. To learn more, consult the [SSH component documentation](/docs/ssh).
+An entirely new `SSH` component has been introduced with this release. This feature allows you to easily SSH into remote servers and run commands. To learn more, consult the [SSH component documentation](/docs/4.1/ssh).
 
 The new `php artisan tail` command utilizes the new SSH component. For more information, consult the `tail` [command documentation](http://laravel.com/docs/ssh#tailing-remote-logs).
 
@@ -1162,7 +1162,7 @@ Cache "sections" have been superseded by "tags". Cache tags allow you to assign 
 
 ### Flexible Password Reminders
 
-The password reminder engine has been changed to provide greater developer flexibility when validating passwords, flashing status messages to the session, etc. For more information on using the enhanced password reminder engine, [consult the documentation](/docs/security#password-reminders-and-reset).
+The password reminder engine has been changed to provide greater developer flexibility when validating passwords, flashing status messages to the session, etc. For more information on using the enhanced password reminder engine, [consult the documentation](/docs/4.1/security#password-reminders-and-reset).
 
 ### Improved Routing Engine
 
