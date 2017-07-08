@@ -143,7 +143,7 @@ So, in our example, the user will be redirected to our controller's `create` met
 
     <h1>Create Post</h1>
 
-    @if (count($errors) > 0)
+    @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
@@ -628,7 +628,7 @@ The field under validation must be a value preceding or equal to the given date.
 <a name="rule-between"></a>
 #### between:_min_,_max_
 
-The field under validation must have a size between the given _min_ and _max_. Strings, numerics, and files are evaluated in the same fashion as the [`size`](#rule-size) rule.
+The field under validation must have a size between the given _min_ and _max_. Strings, numerics, arrays, and files are evaluated in the same fashion as the [`size`](#rule-size) rule.
 
 <a name="rule-boolean"></a>
 #### boolean
@@ -791,7 +791,7 @@ The field under validation must be a valid JSON string.
 <a name="rule-max"></a>
 #### max:_value_
 
-The field under validation must be less than or equal to a maximum _value_. Strings, numerics, and files are evaluated in the same fashion as the [`size`](#rule-size) rule.
+The field under validation must be less than or equal to a maximum _value_. Strings, numerics, arrays, and files are evaluated in the same fashion as the [`size`](#rule-size) rule.
 
 <a name="rule-mimetypes"></a>
 #### mimetypes:_text/plain_,...
@@ -818,7 +818,7 @@ A full listing of MIME types and their corresponding extensions may be found at 
 <a name="rule-min"></a>
 #### min:_value_
 
-The field under validation must have a minimum _value_. Strings, numerics, and files are evaluated in the same fashion as the [`size`](#rule-size) rule.
+The field under validation must have a minimum _value_. Strings, numerics, arrays, and files are evaluated in the same fashion as the [`size`](#rule-size) rule.
 
 <a name="rule-nullable"></a>
 #### nullable
@@ -828,7 +828,16 @@ The field under validation may be `null`. This is particularly useful when valid
 <a name="rule-not-in"></a>
 #### not_in:_foo_,_bar_,...
 
-The field under validation must not be included in the given list of values.
+The field under validation must not be included in the given list of values. The `Rule::notIn` method may be used to fluently construct the rule:
+
+    use Illuminate\Validation\Rule;
+
+    Validator::make($data, [
+        'toppings' => [
+            'required',
+            Rule::notIn(['sprinkles', 'cherries']),
+        ],
+    ]);
 
 <a name="rule-numeric"></a>
 #### numeric

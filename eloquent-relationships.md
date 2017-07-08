@@ -120,6 +120,41 @@ If your parent model does not use `id` as its primary key, or you wish to join t
         return $this->belongsTo('App\User', 'foreign_key', 'other_key');
     }
 
+<a name="default-models"></a>
+#### Default Models
+
+The `belongsTo` relationship allows you to define a default model that will be returned if the given relationship is `null`. This pattern is often referred to as the [Null Object pattern](https://en.wikipedia.org/wiki/Null_Object_pattern) and can help remove conditional checks in your code. In the following example, the `user` relation will return an empty `App\User` model if no `user` is attached to the post:
+
+    /**
+     * Get the author of the post.
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\User')->withDefault();
+    }
+
+To populate the default model with attributes, you may pass an array or Closure to the `withDefault` method:
+
+    /**
+     * Get the author of the post.
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\User')->withDefault([
+            'name' => 'Guest Author',
+        ]);
+    }
+
+    /**
+     * Get the author of the post.
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\User')->withDefault(function ($user) {
+            $user->name = 'Guest Author';
+        });
+    }
+
 <a name="one-to-many"></a>
 ### One To Many
 
@@ -368,15 +403,19 @@ Now that we have examined the table structure for the relationship, let's define
 
 The first argument passed to the `hasManyThrough` method is the name of the final model we wish to access, while the second argument is the name of the intermediate model.
 
-Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third and fourth arguments to the `hasManyThrough` method. The third argument is the name of the foreign key on the intermediate model, the fourth argument is the name of the foreign key on the final model, and the fifth argument is the local key:
+Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third and fourth arguments to the `hasManyThrough` method. The third argument is the name of the foreign key on the intermediate model. The fourth argument is the name of the foreign key on the final model. The fifth argument is the local key, while the sixth argument is the local key of the intermediate model:
 
     class Country extends Model
     {
         public function posts()
         {
             return $this->hasManyThrough(
-                'App\Post', 'App\User',
-                'country_id', 'user_id', 'id'
+                'App\Post',
+                'App\User',
+                'country_id', // Foreign key on users table...
+                'user_id', // Foreign key on posts table...
+                'id', // Local key on countries table...
+                'id' // Local key on users table...
             );
         }
     }
@@ -738,7 +777,7 @@ For this operation, only two queries will be executed:
 
 Sometimes you may need to eager load several different relationships in a single operation. To do so, just pass additional arguments to the `with` method:
 
-    $books = App\Book::with('author', 'publisher')->get();
+    $books = App\Book::with(['author', 'publisher'])->get();
 
 #### Nested Eager Loading
 
@@ -814,7 +853,20 @@ In addition to the `save` and `saveMany` methods, you may also use the `create` 
         'message' => 'A new comment.',
     ]);
 
-Before using the `create` method, be sure to review the documentation on attribute [mass assignment](/docs/{{version}}/eloquent#mass-assignment).
+> {tip} Before using the `create` method, be sure to review the documentation on attribute [mass assignment](/docs/{{version}}/eloquent#mass-assignment).
+
+You may use the `createMany` method to create multiple related models:
+
+    $post = App\Post::find(1);
+
+    $post->comments()->createMany([
+        [
+            'message' => 'A new comment.',
+        ],
+        [
+            'message' => 'Another new comment.',
+        ],
+    ]);
 
 <a name="updating-belongs-to-relationships"></a>
 ### Belongs To Relationships

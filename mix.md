@@ -25,7 +25,7 @@
 <a name="introduction"></a>
 ## Introduction
 
-Laravel Mix provides a fluent API for defining Webpack build steps for your Laravel application using several common CSS and JavaScript pre-processors. Through simple method chaining, you can fluently define your asset pipeline. For example:
+[Laravel Mix](https://github.com/JeffreyWay/laravel-mix) provides a fluent API for defining Webpack build steps for your Laravel application using several common CSS and JavaScript pre-processors. Through simple method chaining, you can fluently define your asset pipeline. For example:
 
     mix.js('resources/assets/js/app.js', 'public/js')
        .sass('resources/assets/sass/app.scss', 'public/css');
@@ -304,11 +304,11 @@ After generating the versioned file, you won't know the exact file name. So, you
 
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
 
-Because versioned files are usually unnecessary in development, you may wish to instruct the versioning process to only run during `npm run production`:
+Because versioned files are usually unnecessary in development, you may instruct the versioning process to only run during `npm run production`:
 
     mix.js('resources/assets/js/app.js', 'public/js');
 
-    if (mix.config.inProduction) {
+    if (mix.inProduction()) {
         mix.version();
     }
 
