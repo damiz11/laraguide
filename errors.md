@@ -9,6 +9,7 @@
 - [The Exception Handler](#the-exception-handler)
     - [Report Method](#report-method)
     - [Render Method](#render-method)
+    - [Reportable & Renderable Exceptions](#renderable-exceptions)
 - [HTTP Exceptions](#http-exceptions)
     - [Custom HTTP Error Pages](#custom-http-error-pages)
 - [Logging](#logging)
@@ -92,6 +93,21 @@ For example, if you need to report different types of exceptions in different wa
         return parent::report($exception);
     }
 
+#### The `report` Helper
+
+Sometimes you may need to report an exception but continue handling the current request. The `report` helper function allows you to quickly report an exception using your exception handler's `report` method without rendering an error page:
+
+    public function isValid($value)
+    {
+        try {
+            // Validate the value...
+        } catch (Exception $e) {
+            report($e);
+
+            return false;
+        }
+    }
+
 #### Ignoring Exceptions By Type
 
 The `$dontReport` property of the exception handler contains an array of exception types that will not be logged. For example, exceptions resulting from 404 errors, as well as several other types of errors, are not written to your log files. You may add other exception types to this array as needed:
@@ -128,6 +144,41 @@ The `render` method is responsible for converting a given exception into an HTTP
         }
 
         return parent::render($request, $exception);
+    }
+
+<a name="renderable-exceptions"></a>
+### Reportable & Renderable Exceptions
+
+Instead of type-checking exceptions in the exception handler's `report` and `render` methods, you may define `report` and `render` methods directly on your custom exception. When these methods exist, they will be called automatically by the framework:
+
+    <?php
+
+    namespace App\Exceptions;
+
+    use Exception;
+
+    class RenderException extends Exception
+    {
+        /**
+         * Report the exception.
+         *
+         * @return void
+         */
+        public function report()
+        {
+            //
+        }
+
+        /**
+         * Report the exception.
+         *
+         * @param  \Illuminate\Http\Request
+         * @return void
+         */
+        public function render($request)
+        {
+            return response(...);
+        }
     }
 
 <a name="http-exceptions"></a>

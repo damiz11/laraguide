@@ -3,7 +3,6 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
     - [Using Other Browsers](#using-other-browsers)
-    - [ChromeDriver Options](#chromedriver-options)
 - [Getting Started](#getting-started)
     - [Generating Tests](#generating-tests)
     - [Running Tests](#running-tests)
@@ -42,23 +41,11 @@ To get started, you should add the `laravel/dusk` Composer dependency to your pr
 
     composer require --dev laravel/dusk
 
-Once Dusk is installed, you should register the `Laravel\Dusk\DuskServiceProvider` service provider. You should register the provider within the `register` method of your `AppServiceProvider` in order to limit the environments in which Dusk is available, since it exposes the ability to log in as other users:
+> {note} You should never install Dusk in a production environment. Otherwise, anyone may be able to gain unauthorized access to your application.
 
-    use Laravel\Dusk\DuskServiceProvider;
+Once Dusk is installed, you should register the `Laravel\Dusk\DuskServiceProvider` service provider. Typically, this will be done automatically via Laravel's automatic service provider registration.
 
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        if ($this->app->environment('local', 'testing')) {
-            $this->app->register(DuskServiceProvider::class);
-        }
-    }
-
-Next, run the `dusk:install` Artisan command:
+After installing the Dusk package, run the `dusk:install` Artisan command:
 
     php artisan dusk:install
 
@@ -97,29 +84,6 @@ Next, you may simply modify the `driver` method to connect to the URL and port o
     {
         return RemoteWebDriver::create(
             'http://localhost:4444/wd/hub', DesiredCapabilities::phantomjs()
-        );
-    }
-
-<a name="chromedriver-options"></a>
-### ChromeDriver Options
-
-To customize the ChromeDriver session, you may modify the `driver` method of the `DuskTestCase` class:
-
-    use Facebook\WebDriver\Chrome\ChromeOptions;
-
-    /**
-     * Create the RemoteWebDriver instance.
-     *
-     * @return \Facebook\WebDriver\Remote\RemoteWebDriver
-     */
-    protected function driver()
-    {
-        $options = (new ChromeOptions)->addArguments(['--headless']);
-
-        return RemoteWebDriver::create(
-            'http://localhost:9515', DesiredCapabilities::chrome()->setCapability(
-                ChromeOptions::CAPABILITY, $options
-            )
         );
     }
 
@@ -671,15 +635,19 @@ To run your Dusk tests on Travis CI, we will need to use the "sudo-enabled" Ubun
     sudo: required
     dist: trusty
 
+    addons:
+       chrome: stable
+
+    install:
+       - cp .env.testing .env
+       - travis_retry composer install --no-interaction --prefer-dist --no-suggest
+
     before_script:
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
-        - ./vendor/laravel/dusk/bin/chromedriver-linux &
-        - cp .env.testing .env
-        - php artisan serve > /dev/null 2>&1 &
+       - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+       - php artisan serve &
 
     script:
-        - php artisan dusk
+       - php artisan dusk
 
 <a name="running-tests-on-circle-ci"></a>
 ### CircleCI
@@ -687,6 +655,13 @@ To run your Dusk tests on Travis CI, we will need to use the "sudo-enabled" Ubun
 #### CircleCI 1.0
 
 If you are using CircleCI 1.0 to run your Dusk tests, you may use this configuration file as a starting point. Like TravisCI, we will use the `php artisan serve` command to launch PHP's built-in web server:
+
+	dependencies:
+	  pre:
+	      - curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+	      - sudo dpkg -i google-chrome.deb
+	      - sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
+	      - rm google-chrome.deb
 
     test:
         pre:
@@ -707,14 +682,23 @@ If you are using CircleCI 1.0 to run your Dusk tests, you may use this configura
      jobs:
          build:
              steps:
-                  - run:
-                      name: Start Chrome Driver
-                      command: ./vendor/laravel/dusk/bin/chromedriver-linux
-                      background: true
-                 - run:
-                     name: Run Laravel Server
-                     command: php artisan serve
-                     background: true
-                 - run:
-                     name: Run Laravel Dusk Tests
-                     command: php artisan dusk
+                - run: sudo apt-get install -y libsqlite3-dev
+                - run: cp .env.testing .env
+                - run: composer install -n --ignore-platform-reqs
+                - run: npm install
+                - run: npm run production
+                - run: vendor/bin/phpunit
+
+                - run:
+                   name: Start Chrome Driver
+                   command: ./vendor/laravel/dusk/bin/chromedriver-linux
+                   background: true
+
+                - run:
+                   name: Run Laravel Server
+                   command: php artisan serve
+                   background: true
+
+                - run:
+                   name: Run Laravel Dusk Tests
+                   command: php artisan dusk

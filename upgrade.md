@@ -33,6 +33,10 @@ Any `fire` methods present on your Artisan commands should be renamed to `handle
 
 When passing a multi-word model name to the `authorizeResource` method, the resulting route segment will now be "snake" case, matching the behavior of resource controllers.
 
+#### The `before` Policy Method
+
+The `before` method of a policy class will not be called if the class doesn't contain a method with name matching the name of the ability being checked.
+
 ### Cache
 
 #### Database Driver
@@ -41,9 +45,9 @@ If you are using the database cache driver, you should run `php artisan cache:cl
 
 ### Eloquent
 
-#### The `belongsTo` Method
+#### The `belongsToMany` Method
 
-If you are overriding the `belongsTo` method on your Eloquent model, you should update your method signature to reflect the addition of new arguments:
+If you are overriding the `belongsToMany` method on your Eloquent model, you should update your method signature to reflect the addition of new arguments:
 
     /**
      * Define a many-to-many relationship.
@@ -102,7 +106,7 @@ When deleting a "soft deleted" model, the `exists` property on the model will re
 
 #### `withCount` Column Formatting
 
-When using an alias, the `withCount` method will no longer automatically append `_count` onto the resulting column name. For example, in Laravel 5.4, the following query woudl result in a `bar_count` column being added to the query:
+When using an alias, the `withCount` method will no longer automatically append `_count` onto the resulting column name. For example, in Laravel 5.4, the following query would result in a `bar_count` column being added to the query:
 
     $users = User::withCount('foo as bar')->get();
 
@@ -115,7 +119,7 @@ However, in Laravel 5.5, the alias will be used exactly as it is given. If you w
 In Laravel 5.5, all exceptions, including validation exceptions, are converted into HTTP responses by the exception handler. In addition, the default format for JSON validation errors has changed. The new format conforms to the following convention:
 
     {
-        "message": "...",
+        "message": "The given data was invalid.",
         "errors": {
             "field-1": [
                 "Error 1",
@@ -212,9 +216,15 @@ The `intersect` method has been removed. You may replicate this behavior using `
 
 #### The `only` Method
 
-The `only` method will now only return attributes that are actually present in the request payload. If you would like to preserve the old behavior of the `only` method, you may use the new `pick` method instead.
+The `only` method will now only return attributes that are actually present in the request payload. If you would like to preserve the old behavior of the `only` method, you may use the `all` method instead.
 
-    return $request->pick('foo');
+    return $request->all('foo');
+
+#### The `request()` Helper
+
+The `request` helper will no longer retrieve nested keys. If needed, you may use the `input` method of the request to achieve this behavior:
+
+    return request()->input('filters.date');
 
 ### Testing
 
@@ -229,6 +239,10 @@ Some authentication assertions were renamed for better consistency with the rest
 - `seeCredentials` was renamed to `assertCredentials`.
 - `dontSeeCredentials` was renamed to `assertInvalidCredentials`.
 </div>
+
+#### Mail Fake
+
+If you are using the `Mail` fake to determine if a mailable was **queued** during a request, you should now use `Mail::assertQueued` instead of `Mail::assertSent`. This distinction allows you to specifically assert that the mail was queued for background sending and not sent during the request itself.
 
 ### Translation
 
@@ -248,7 +262,7 @@ All of the validator's validation methods are now `public` instead of `protected
 
 When allowing the dynamic `__call` method to share variables with a view, these variables will automatically use "camel" case. For example, given the following:
 
-    return view('pool')->maximumVotes(100);
+    return view('pool')->withMaximumVotes(100);
 
 The `maximumVotes` variable may be accessed in the template like so:
 
