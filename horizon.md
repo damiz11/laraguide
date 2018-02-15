@@ -83,7 +83,7 @@ You may gracefully terminate the master Horizon process on your machine using th
 If you are using the Supervisor process monitor to manage your `horizon` process, the following configuration file should suffice:
 
     [program:horizon]
-    process_name=%(program_name)
+    process_name=%(program_name)s
     command=php /home/forge/app.com/artisan horizon
     autostart=true
     autorestart=true
@@ -168,17 +168,17 @@ If you would like to manually define the tags for one of your queueable objects,
 <a name="notifications"></a>
 ## Notifications
 
-> **Note:** Before using notifications, you should add the `guzzlehttp/guzzle` Composer package to your project. When configuring Horizon to send SMS notifications, you should also review the [prerequisites for the Nexmo notification driver](https://laravel.com/docs/5.4/notifications#sms-notifications).
+> **Note:** Before using notifications, you should add the `guzzlehttp/guzzle` Composer package to your project. When configuring Horizon to send SMS notifications, you should also review the [prerequisites for the Nexmo notification driver](https://laravel.com/docs/5.5/notifications#sms-notifications).
 
-If you would like to be notified when one of your queues has a long wait time, you may use the `Horizon::routeSlackNotificationsTo` and `Horizon::routeSmsNotificationsTo` methods. You may call these methods from your application's `AppServiceProvider`:
+If you would like to be notified when one of your queues has a long wait time, you may use the `Horizon::routeMailNotificationsTo`, `Horizon::routeSlackNotificationsTo`, and `Horizon::routeSmsNotificationsTo` methods. You may call these methods from your application's `AppServiceProvider`:
 
-    Horizon::routeSlackNotificationsTo('slack-webhook-url');
-
+    Horizon::routeMailNotificationsTo('example@example.com');
+    Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
     Horizon::routeSmsNotificationsTo('15556667777');
 
 #### Configuring Notification Wait Time Thresholds
 
-You may configure how many seconds are considered a "long wait" within your `config/horizon.php` configuration file. The `wait` configuration option within this file allows you to control the long wait threshold for each connection / queue combination:
+You may configure how many seconds are considered a "long wait" within your `config/horizon.php` configuration file. The `waits` configuration option within this file allows you to control the long wait threshold for each connection / queue combination:
 
     'waits' => [
         'redis:default' => 60,

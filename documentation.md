@@ -9,6 +9,7 @@
     - [Directory Structure](/docs/{{version}}/structure)
     - [Homestead](/docs/{{version}}/homestead)
     - [Valet](/docs/{{version}}/valet)
+    - [Deployment](/docs/{{version}}/deployment)
 - ## Architecture Concepts
     - [Request Lifecycle](/docs/{{version}}/lifecycle)
     - [Service Container](/docs/{{version}}/container)
@@ -23,6 +24,7 @@
     - [Requests](/docs/{{version}}/requests)
     - [Responses](/docs/{{version}}/responses)
     - [Views](/docs/{{version}}/views)
+    - [URL Generation](/docs/{{version}}/urls)
     - [Session](/docs/{{version}}/session)
     - [Validation](/docs/{{version}}/validation)
     - [Errors & Logging](/docs/{{version}}/errors)
@@ -63,6 +65,7 @@
     - [Relationships](/docs/{{version}}/eloquent-relationships)
     - [Collections](/docs/{{version}}/eloquent-collections)
     - [Mutators](/docs/{{version}}/eloquent-mutators)
+    - [API Resources](/docs/{{version}}/eloquent-resources)
     - [Serialization](/docs/{{version}}/eloquent-serialization)
 - ## Testing
     - [Getting Started](/docs/{{version}}/testing)
@@ -76,4 +79,4 @@
     - [Horizon](/docs/{{version}}/horizon)
     - [Passport](/docs/{{version}}/passport)
     - [Scout](/docs/{{version}}/scout)
-    - [Socialite](https://github.com/laravel/socialite)
+    - [Socialite](/docs/{{version}}/socialite)

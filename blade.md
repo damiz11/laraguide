@@ -78,6 +78,8 @@ When defining a child view, use the Blade `@extends` directive to specify which 
 
 In this example, the `sidebar` section is utilizing the `@@parent` directive to append (rather than overwriting) content to the layout's sidebar. The `@@parent` directive will be replaced by the content of the layout when the view is rendered.
 
+> {tip} Contrary to the previous example, this `sidebar` section ends with `@endsection` instead of `@show`. The `@endsection` directive will only define a section while `@show` will define and **immediately yield** the section.
+
 Blade views may be returned from routes using the global `view` helper:
 
     Route::get('blade', function () {
@@ -101,7 +103,7 @@ The `{{ $slot }}` variable will contain the content we wish to inject into the c
         <strong>Whoops!</strong> Something went wrong!
     @endcomponent
 
-Sometimes it is helpful to define multiple slots for a component. Let's modify our alert component to allow for the injection of a "title". Named slots may be displayed by simply "echoing" the variable that matches their name:
+Sometimes it is helpful to define multiple slots for a component. Let's modify our alert component to allow for the injection of a "title". Named slots may be displayed by "echoing" the variable that matches their name:
 
     <!-- /resources/views/alert.blade.php -->
 
@@ -146,7 +148,7 @@ Of course, you are not limited to displaying the contents of the variables passe
 
     The current UNIX timestamp is {{ time() }}.
 
-> {note} Blade `{{ }}` statements are automatically sent through PHP's `htmlspecialchars` function to prevent XSS attacks.
+> {tip} Blade `{{ }}` statements are automatically sent through PHP's `htmlspecialchars` function to prevent XSS attacks.
 
 #### Displaying Unescaped Data
 
@@ -155,6 +157,20 @@ By default, Blade `{{ }}` statements are automatically sent through PHP's `htmls
     Hello, {!! $name !!}.
 
 > {note} Be very careful when echoing content that is supplied by users of your application. Always use the escaped, double curly brace syntax to prevent XSS attacks when displaying user supplied data.
+
+#### Rendering JSON
+
+Sometimes you may pass an array to your view with the intention of rendering it as JSON in order to initialize a JavaScript variable. For example:
+
+    <script>
+        var app = <?php echo json_encode($array); ?>;
+    </script>
+
+However, instead of manually calling `json_encode`, you may use the `@json` Blade directive:
+
+    <script>
+        var app = @json($array);
+    </script>
 
 <a name="blade-and-javascript-frameworks"></a>
 ### Blade & JavaScript Frameworks
@@ -211,7 +227,7 @@ In addition to the conditional directives already discussed, the `@isset` and `@
         // $records is "empty"...
     @endempty
 
-#### Authentication Shortcuts
+#### Authentication Directives
 
 The `@auth` and `@guest` directives may be used to quickly determine if the current user is authenticated or is a guest:
 
@@ -222,6 +238,28 @@ The `@auth` and `@guest` directives may be used to quickly determine if the curr
     @guest
         // The user is not authenticated...
     @endguest
+
+If needed, you may specify the [authentication guard](/docs/{{version}}/authentication) that should be checked when using the `@auth` and `@guest` directives:
+
+    @auth('admin')
+        // The user is authenticated...
+    @endauth
+
+    @guest('admin')
+        // The user is not authenticated...
+    @endguest
+
+#### Section Directives
+
+You may check if a section has content using the `@hasSection` directive:
+
+    @hasSection('navigation')
+        <div class="pull-right">
+            @yield('navigation')
+        </div>
+
+        <div class="clearfix"></div>
+    @endif
 
 <a name="switch-statements"></a>
 ### Switch Statements
@@ -373,6 +411,10 @@ If you would like to `@include` a view depending on a given boolean condition, y
 
     @includeWhen($boolean, 'view.name', ['some' => 'data'])
 
+To include the first view that exists from a given array of views, you may use the `includeFirst` directive:
+
+    @includeFirst(['custom.admin', 'admin'], ['some' => 'data'])
+
 > {note} You should avoid using the `__DIR__` and `__FILE__` constants in your Blade views, since they will refer to the location of the cached, compiled view.
 
 <a name="rendering-views-for-collections"></a>
@@ -486,6 +528,8 @@ Once the custom conditional has been defined, we can easily use it on our templa
 
     @env('local')
         // The application is in the local environment...
+    @elseenv('testing')
+        // The application is in the testing environment...
     @else
-        // The application is not in the local environment...
+        // The application is not in the local or testing environment...
     @endenv

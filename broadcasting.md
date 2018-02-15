@@ -251,7 +251,6 @@ If you customize the broadcast name using the `broadcastAs` method, you should m
         ....
     });
 
-
 <a name="broadcast-data"></a>
 ### Broadcast Data
 
@@ -465,7 +464,7 @@ Alternatively, you may prefix event classes with a `.` when subscribing to them 
 
 Presence channels build on the security of private channels while exposing the additional feature of awareness of who is subscribed to the channel. This makes it easy to build powerful, collaborative application features such as notifying users when another user is viewing the same page.
 
-<a name="joining-a-presence-channel"></a>
+<a name="authorizing-presence-channels"></a>
 ### Authorizing Presence Channels
 
 All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user.
@@ -532,14 +531,14 @@ You may listen for the join event via Echo's `listen` method:
 
 Sometimes you may wish to broadcast an event to other connected clients without hitting your Laravel application at all. This can be particularly useful for things like "typing" notifications, where you want to alert users of your application that another user is typing a message on a given screen. To broadcast client events, you may use Echo's `whisper` method:
 
-    Echo.channel('chat')
+    Echo.private('chat')
         .whisper('typing', {
             name: this.user.name
         });
 
 To listen for client events, you may use the `listenForWhisper` method:
 
-    Echo.channel('chat')
+    Echo.private('chat')
         .listenForWhisper('typing', (e) => {
             console.log(e.name);
         });

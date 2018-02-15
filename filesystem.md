@@ -24,7 +24,7 @@ Laravel provides a powerful filesystem abstraction thanks to the wonderful [Flys
 <a name="configuration"></a>
 ## Configuration
 
-The filesystem configuration file is located at `config/filesystems.php`. Within this file you may configure all of your "disks". Each disk represents a particular storage driver and storage location. Example configurations for each supported driver are included in the configuration file. So, simply modify the configuration to reflect your storage preferences and credentials.
+The filesystem configuration file is located at `config/filesystems.php`. Within this file you may configure all of your "disks". Each disk represents a particular storage driver and storage location. Example configurations for each supported driver are included in the configuration file. So, modify the configuration to reflect your storage preferences and credentials.
 
 Of course, you may configure as many disks as you like, and may even have multiple disks that use the same driver.
 
@@ -60,7 +60,7 @@ Before using the S3 or Rackspace drivers, you will need to install the appropria
 
 #### S3 Driver Configuration
 
-The S3 driver configuration information is located in your `config/filesystems.php` configuration file. This file contains an example configuration array for an S3 driver. You are free to modify this array with your own S3 configuration and credentials.
+The S3 driver configuration information is located in your `config/filesystems.php` configuration file. This file contains an example configuration array for an S3 driver. You are free to modify this array with your own S3 configuration and credentials. For convenience, these environment variables match the naming convention used by the AWS CLI.
 
 #### FTP Driver Configuration
 
@@ -121,7 +121,7 @@ The `exists` method may be used to determine if a file exists on the disk:
 <a name="file-urls"></a>
 ### File URLs
 
-When using the `local` or `s3` drivers, you may use the `url` method to get the URL for the given file. If you are using the `local` driver, this will typically just prepend `/storage` to the given path and return a relative URL to the file. If you are using the `s3` driver, the fully qualified remote URL will be returned:
+You may use the `url` method to get the URL for the given file. If you are using the `local` driver, this will typically just prepend `/storage` to the given path and return a relative URL to the file. If you are using the `s3` or `rackspace` driver, the fully qualified remote URL will be returned:
 
     use Illuminate\Support\Facades\Storage;
 
@@ -131,10 +131,10 @@ When using the `local` or `s3` drivers, you may use the `url` method to get the 
 
 #### Temporary URLs
 
-For files stored using the `s3` driver, you may create a temporary URL to a given file using the `temporaryUrl` method. This methods accepts a path and a `DateTime` instance specifying when the URL should expire:
+For files stored using the `s3` or `rackspace` driver, you may create a temporary URL to a given file using the `temporaryUrl` method. This methods accepts a path and a `DateTime` instance specifying when the URL should expire:
 
     $url = Storage::temporaryUrl(
-        'file1.jpg', Carbon::now()->addMinutes(5)
+        'file1.jpg', now()->addMinutes(5)
     );
 
 #### Local URL Host Customization
@@ -177,6 +177,7 @@ The `put` method may be used to store raw file contents on a disk. You may also 
 If you would like Laravel to automatically manage streaming a given file to your storage location, you may use the `putFile` or `putFileAs` method. This method accepts either a `Illuminate\Http\File` or `Illuminate\Http\UploadedFile` instance and will automatically stream the file to your desired location:
 
     use Illuminate\Http\File;
+    use Illuminate\Support\Facades\Storage;
 
     // Automatically generate a unique ID for file name...
     Storage::putFile('photos', new File('/path/to/photo'));
@@ -209,7 +210,7 @@ The `copy` method may be used to copy an existing file to a new location on the 
 <a name="file-uploads"></a>
 ### File Uploads
 
-In web applications, one of the most common use-cases for storing files is storing user uploaded files such as profile pictures, photos, and documents. Laravel makes it very easy to store uploaded files using the `store` method on an uploaded file instance. Simply call the `store` method with the path at which you wish to store the uploaded file:
+In web applications, one of the most common use-cases for storing files is storing user uploaded files such as profile pictures, photos, and documents. Laravel makes it very easy to store uploaded files using the `store` method on an uploaded file instance. Call the `store` method with the path at which you wish to store the uploaded file:
 
     <?php
 
@@ -290,6 +291,12 @@ The `delete` method accepts a single filename or an array of files to remove fro
 
     Storage::delete(['file1.jpg', 'file2.jpg']);
 
+If necessary, you may specify the disk that the file should be deleted from:
+
+    use Illuminate\Support\Facades\Storage;
+
+    Storage::disk('s3')->delete('folder_path/file_name.jpg');
+
 <a name="directories"></a>
 ## Directories
 
@@ -341,8 +348,8 @@ Next, you should create a [service provider](/docs/{{version}}/providers) such a
 
     use Storage;
     use League\Flysystem\Filesystem;
-    use Spatie\Dropbox\Client as DropboxClient;
     use Illuminate\Support\ServiceProvider;
+    use Spatie\Dropbox\Client as DropboxClient;
     use Spatie\FlysystemDropbox\DropboxAdapter;
 
     class DropboxServiceProvider extends ServiceProvider

@@ -25,7 +25,7 @@ Artisan is the command-line interface included with Laravel. It provides a numbe
 
     php artisan list
 
-Every command also includes a "help" screen which displays and describes the command's available arguments and options. To view a help screen, simply precede the name of the command with `help`:
+Every command also includes a "help" screen which displays and describes the command's available arguments and options. To view a help screen, precede the name of the command with `help`:
 
     php artisan help migrate
 
@@ -321,9 +321,9 @@ The `anticipate` method can be used to provide auto-completion for possible choi
 
 #### Multiple Choice Questions
 
-If you need to give the user a predefined set of choices, you may use the `choice` method. You may set the default value to be returned if no option is chosen:
+If you need to give the user a predefined set of choices, you may use the `choice` method. You may set the array index of the default value to be returned if no option is chosen:
 
-    $name = $this->choice('What is your name?', ['Taylor', 'Dayle'], $default);
+    $name = $this->choice('What is your name?', ['Taylor', 'Dayle'], $defaultIndex);
 
 <a name="writing-output"></a>
 ### Writing Output
@@ -394,7 +394,7 @@ Because of the `load` method call in your console kernel's `commands` method, al
         // ...
     }
 
-You may also manually register commands by adding its class name to the `$command` property of your `app/Console/Kernel.php` file. When Artisan boots, all the commands listed in this property will be resolved by the [service container](/docs/{{version}}/container) and registered with Artisan:
+You may also manually register commands by adding its class name to the `$commands` property of your `app/Console/Kernel.php` file. When Artisan boots, all the commands listed in this property will be resolved by the [service container](/docs/{{version}}/container) and registered with Artisan:
 
     protected $commands = [
         Commands\SendEmails::class
@@ -423,7 +423,25 @@ Using the `queue` method on the `Artisan` facade, you may even queue Artisan com
         //
     });
 
-If you need to specify the value of an option that does not accept string values, such as the `--force` flag on the `migrate:refresh` command, you may pass `true` or `false`:
+You may also specify the connection or queue the Artisan command should be dispatched to:
+
+    Artisan::queue('email:send', [
+        'user' => 1, '--queue' => 'default'
+    ])->onConnection('redis')->onQueue('commands');
+
+#### Passing Array Values
+
+If your command defines an option that accepts an array, you may pass an array of values to that option:
+
+    Route::get('/foo', function () {
+        $exitCode = Artisan::call('email:send', [
+            'user' => 1, '--id' => [5, 13]
+        ]);
+    });
+
+#### Passing Boolean Values
+
+If you need to specify the value of an option that does not accept string values, such as the `--force` flag on the `migrate:refresh` command, you should pass `true` or `false`:
 
     $exitCode = Artisan::call('migrate:refresh', [
         '--force' => true,

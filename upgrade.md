@@ -9,9 +9,27 @@
 
 > {note} We attempt to document every possible breaking change. Since some of these breaking changes are in obscure parts of the framework only a portion of these changes may actually affect your application.
 
+### PHP
+
+Laravel 5.5 requires PHP 7.0.0 or higher.
+
 ### Updating Dependencies
 
-Update your `laravel/framework` dependency to `5.5.*` in your `composer.json` file. In addition, you should update your `phpunit/phpunit` dependency to `~6.0`.
+Update your `laravel/framework` dependency to `5.5.*` in your `composer.json` file. In addition, you should update your `phpunit/phpunit` dependency to `~6.0`. Next, add the `filp/whoops` package with version `~2.0` to the `require-dev` section of your `composer.json` file. Finally, in the `scripts` section of your `composer.json` file, add the `package:discover` command to the `post-autoload-dump` event:
+
+    "scripts": {
+        ...
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
+        ],
+    }
+
+Of course, don't forget to examine any 3rd party packages consumed by your application and verify you are using the proper version for Laravel 5.5 support.
+
+#### Laravel Installer
+
+> {tip} If you commonly use the Laravel installer via `laravel new`, you should update your Laravel installer package using the `composer global update` command.
 
 #### Laravel Dusk
 
@@ -21,13 +39,29 @@ Laravel Dusk `2.0.0` has been released to provide compatibility with Laravel 5.5
 
 The Pusher event broadcasting driver now requires version `~3.0` of the Pusher SDK.
 
+#### Swift Mailer
+
+Laravel 5.5 requires version `~6.0` of Swift Mailer.
+
 ### Artisan
+
+#### Auto-Loading Commands
+
+In Laravel 5.5, Artisan can automatically discover commands so that you do not have to manually register them in your kernel. To take advantage of this new feature, you should add the following line to the `commands` method of your  `App\Console\Kernel` class:
+
+    $this->load(__DIR__.'/Commands');
 
 #### The `fire` Method
 
 Any `fire` methods present on your Artisan commands should be renamed to `handle`.
 
+#### The `optimize` Command
+
+With recent improvements to PHP op-code caching, the `optimize` Artisan command is no longer needed. You should remove any references to this command from your deployment scripts as it will be removed in a future release of Laravel.
+
 ### Authorization
+
+> {note} When upgrading from Laravel 5.4 to 5.5, all `remember_me` cookies will be rendered invalid and users will be logged out.
 
 #### The `authorizeResource` Controller Method
 
@@ -35,7 +69,7 @@ When passing a multi-word model name to the `authorizeResource` method, the resu
 
 #### The `before` Policy Method
 
-The `before` method of a policy class will not be called if the class doesn't contain a method with name matching the name of the ability being checked.
+The `before` method of a policy class will not be called if the class doesn't contain a method matching the name of the ability being checked.
 
 ### Cache
 
@@ -62,11 +96,19 @@ If you are overriding the `belongsToMany` method on your Eloquent model, you sho
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function belongsToMany($related, $table = null, $foreignPivotKey = null,
-                                  $relatedPivotKey = null,$parentKey = null,
+                                  $relatedPivotKey = null, $parentKey = null,
                                   $relatedKey = null, $relation = null)
     {
         //
     }
+
+#### BelongsToMany `getQualifiedRelatedKeyName`
+
+The `getQualifiedRelatedKeyName` method has been renamed to `getQualifiedRelatedPivotKeyName`.
+
+#### BelongsToMany `getQualifiedForeignKeyName`
+
+The `getQualifiedForeignKeyName` method has been renamed to `getQualifiedForeignPivotKeyName`.
 
 #### Model `is` Method
 
@@ -93,7 +135,7 @@ The protected `$parent` property on the `Illuminate\Database\Eloquent\Relations\
 
 #### Relationship `create` Methods
 
-The `BelongsToMany`, `HasOneOrMany`, and `MorphOneOrMany` class' `create` methods have been modified to provide a default value for the `$attributes` argument. If you are overriding these methods, you should update your signatures to match the new definition:
+The `BelongsToMany`, `HasOneOrMany`, and `MorphOneOrMany` classes' `create` methods have been modified to provide a default value for the `$attributes` argument. If you are overriding these methods, you should update your signatures to match the new definition:
 
     public function create(array $attributes = [])
     {
@@ -113,6 +155,10 @@ When using an alias, the `withCount` method will no longer automatically append 
 However, in Laravel 5.5, the alias will be used exactly as it is given. If you would like to append `_count` to the resulting column, you must specify that suffix when defining the alias:
 
     $users = User::withCount('foo as bar_count')->get();
+
+#### Model Methods & Attribute Names
+
+To prevent accessing a model's private properties when using array access, it's no longer possible to have a model method with the same name as an attribute or property. Doing so will cause exceptions to be thrown when accessing the model's attributes via array access (`$user['name']`) or the `data_get` helper function.
 
 ### Exception Format
 
@@ -175,7 +221,9 @@ If you were customizing the response format of an individual form request, you s
 
 #### The `files` Method
 
-The `files` method now returns an array of `SplFileInfo` objects, similar to the `allFiles` method. Previously, the `files` method returned an array of string path names.
+The `files` method of the `Illuminate\Filesystem\Filesystem` class has changed its signature to add the `$hidden` argument and now returns an array of `SplFileInfo` objects, similar to the `allFiles` method. Previously, the `files` method returned an array of string path names. The new signature is as follows:
+
+    public function files($directory, $hidden = false)
 
 ### Mail
 
@@ -202,11 +250,38 @@ The unused `$data` and `$callback` arguments were removed from the `Illuminate\C
      */
     public function later($delay, $view, $queue = null);
 
+### Queues
+
+#### The `dispatch` Helper
+
+If you would like to dispatch a job that runs immediately and returns a value from the `handle` method, you should use the `dispatch_now` or `Bus::dispatchNow` method to dispatch the job:
+
+    use Illuminate\Support\Facades\Bus;
+
+    $value = dispatch_now(new Job);
+
+    $value = Bus::dispatchNow(new Job);
+
 ### Requests
+
+#### The `all` Method
+
+If you are overriding the `all` method of the `Illuminate\Http\Request` class, you should update your method signature to reflect the new `$keys` argument:
+
+    /**
+     * Get all of the input and files for the request.
+     *
+     * @param  array|mixed  $keys
+     * @return array
+     */
+    public function all($keys = null)
+    {
+        //
+    }
 
 #### The `has` Method
 
-The `$request->has` method will now return `true` for empty strings and `null`. A new `$request->filled` method has been added that provides the previous behavior of the `has` method.
+The `$request->has` method will now return `true` even if the input value is an empty string or `null`. A new `$request->filled` method has been added that provides the previous behavior of the `has` method.
 
 #### The `intersect` Method
 
@@ -244,6 +319,15 @@ Some authentication assertions were renamed for better consistency with the rest
 
 If you are using the `Mail` fake to determine if a mailable was **queued** during a request, you should now use `Mail::assertQueued` instead of `Mail::assertSent`. This distinction allows you to specifically assert that the mail was queued for background sending and not sent during the request itself.
 
+#### Tinker
+
+Laravel Tinker now supports omitting namespaces when referring to your application classes. This feature requires an optimized Composer class-map, so you should add the `optimize-autoloader` directive to the `config` section of your `composer.json` file:
+
+    "config": {
+        ...
+        "optimize-autoloader": true
+    }
+
 ### Translation
 
 #### The `LoaderInterface`
@@ -267,3 +351,15 @@ When allowing the dynamic `__call` method to share variables with a view, these 
 The `maximumVotes` variable may be accessed in the template like so:
 
     {{ $maximumVotes }}
+
+#### `@php` Blade Directive
+
+The `@php` blade directive no longer accepts inline tags. Instead, use the full form of the directive:
+
+    @php
+        $teamMember = true;
+    @endphp
+
+### Miscellaneous
+
+We also encourage you to view the changes in the `laravel/laravel` [GitHub repository](https://github.com/laravel/laravel). While many of these changes are not required, you may wish to keep these files in sync with your application. Some of these changes will be covered in this upgrade guide, but others, such as changes to configuration files or comments, will not be. You can easily view the changes with the [GitHub comparison tool](https://github.com/laravel/laravel/compare/5.4...master) and choose which updates are important to you.

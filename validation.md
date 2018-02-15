@@ -96,15 +96,15 @@ To get a better understanding of the `validate` method, let's jump back into the
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'title' => 'required|unique:posts|max:255',
             'body' => 'required',
         ]);
 
-        // The blog post is valid, store in database...
+        // The blog post is valid...
     }
 
-As you can see, we simply pass the desired validation rules into the `validate` method. Again, if the validation fails, the proper response will automatically be generated. If the validation passes, our controller will continue executing normally.
+As you can see, we pass the desired validation rules into the `validate` method. Again, if the validation fails, the proper response will automatically be generated. If the validation passes, our controller will continue executing normally.
 
 #### Stopping On First Validation Failure
 
@@ -115,7 +115,7 @@ Sometimes you may wish to stop running validation rules on an attribute after th
         'body' => 'required',
     ]);
 
-In this example, if the `required` rule on the `title` attribute fails, the `unique` rule will not be checked. Rules will be validated in the order they are assigned.
+In this example, if the `unique` rule on the `title` attribute fails, the `max` rule will not be checked. Rules will be validated in the order they are assigned.
 
 #### A Note On Nested Attributes
 
@@ -254,7 +254,7 @@ Since all form requests extend the base Laravel request class, we may use the `u
 
 If the `authorize` method returns `false`, a HTTP response with a 403 status code will automatically be returned and your controller method will not execute.
 
-If you plan to have authorization logic in another part of your application, simply return `true` from the `authorize` method:
+If you plan to have authorization logic in another part of your application, return `true` from the `authorize` method:
 
     /**
      * Determine if the user is authorized to make this request.
@@ -339,7 +339,7 @@ If you would like to create a validator instance manually but still take advanta
 <a name="named-error-bags"></a>
 ### Named Error Bags
 
-If you have multiple forms on a single page, you may wish to name the `MessageBag` of errors, allowing you to retrieve the error messages for a specific form. Simply pass a name as the second argument to `withErrors`:
+If you have multiple forms on a single page, you may wish to name the `MessageBag` of errors, allowing you to retrieve the error messages for a specific form. Pass a name as the second argument to `withErrors`:
 
     return redirect('register')
                 ->withErrors($validator, 'login');
@@ -424,7 +424,7 @@ In this example, the `:attribute` place-holder will be replaced by the actual na
     $messages = [
         'same'    => 'The :attribute and :other must match.',
         'size'    => 'The :attribute must be exactly :size.',
-        'between' => 'The :attribute must be between :min - :max.',
+        'between' => 'The :attribute value :input is not between :min - :max.',
         'in'      => 'The :attribute must be one of the following types: :values',
     ];
 
@@ -487,6 +487,7 @@ Below is a list of all available validation rules and their function:
 [Boolean](#rule-boolean)
 [Confirmed](#rule-confirmed)
 [Date](#rule-date)
+[Date Equals](#rule-date-equals)
 [Date Format](#rule-date-format)
 [Different](#rule-different)
 [Digits](#rule-digits)
@@ -603,6 +604,11 @@ The field under validation must have a matching field of `foo_confirmation`. For
 #### date
 
 The field under validation must be a valid date according to the `strtotime` PHP function.
+
+<a name="rule-date-equals"></a>
+#### date_equals:_date_
+
+The field under validation must be equal to the given date. The dates will be passed into the PHP `strtotime` function.
 
 <a name="rule-date-format"></a>
 #### date_format:_format_
@@ -918,7 +924,7 @@ If your table uses a primary key column name other than `id`, you may specify th
 You may also specify additional query constraints by customizing the query using the `where` method. For example, let's add a constraint that verifies the `account_id` is `1`:
 
     'email' => Rule::unique('users')->where(function ($query) {
-        $query->where('account_id', 1);
+        return $query->where('account_id', 1);
     })
 
 <a name="rule-url"></a>
