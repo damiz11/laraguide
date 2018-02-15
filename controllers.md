@@ -174,20 +174,22 @@ If you are using route model binding and would like the resource controller's me
 
 #### Spoofing Form Methods
 
-Since HTML forms can't make `PUT`, `PATCH`, or `DELETE` requests, you will need to add a hidden `_method` field to spoof these HTTP verbs. The `method_field` helper can create this field for you:
+Since HTML forms can't make `PUT`, `PATCH`, or `DELETE` requests, you will need to add a hidden `_method` field to spoof these HTTP verbs. The `@method` Blade directive can create this field for you:
 
-    {{ method_field('PUT') }}
+    <form action="/foo/bar" method="POST">
+        @method('PUT')
+    </form>
 
 <a name="restful-partial-resource-routes"></a>
 ### Partial Resource Routes
 
 When declaring a resource route, you may specify a subset of actions the controller should handle instead of the full set of default actions:
 
-    Route::resource('photo', 'PhotoController', ['only' => [
+    Route::resource('photos', 'PhotoController', ['only' => [
         'index', 'show'
     ]]);
 
-    Route::resource('photo', 'PhotoController', ['except' => [
+    Route::resource('photos', 'PhotoController', ['except' => [
         'create', 'store', 'update', 'destroy'
     ]]);
 
@@ -195,7 +197,7 @@ When declaring a resource route, you may specify a subset of actions the control
 
 When declaring resource routes that will be consumed by APIs, you will commonly want to exclude routes that present HTML templates such as `create` and `edit`. For convenience, you may use the `apiResource` method to automatically exclude these two routes:
 
-    Route::apiResource('photo', 'PhotoController');
+    Route::apiResource('photos', 'PhotoController');
 
 You may register many API resource controllers at once by passing an array to the `apiResources` method:
 
@@ -204,13 +206,17 @@ You may register many API resource controllers at once by passing an array to th
         'posts' => 'PostController'
     ]);
 
+To quickly generate an API resource controller that does not include the `create` or `edit` methods, use the `--api` switch when executing the `make:controller` command:
+
+    php artisan make:controller API/PhotoController --api
+
 <a name="restful-naming-resource-routes"></a>
 ### Naming Resource Routes
 
 By default, all resource controller actions have a route name; however, you can override these names by passing a `names` array with your options:
 
-    Route::resource('photo', 'PhotoController', ['names' => [
-        'create' => 'photo.build'
+    Route::resource('photos', 'PhotoController', ['names' => [
+        'create' => 'photos.build'
     ]]);
 
 <a name="restful-naming-resource-route-parameters"></a>

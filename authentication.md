@@ -75,6 +75,8 @@ When a user is successfully authenticated, they will be redirected to the `/home
 
     protected $redirectTo = '/';
 
+Next, you should modify the `RedirectIfAuthenticated` middleware's `handle` method to use your new URI when redirecting the user.
+
 If the redirect path needs custom generation logic you may define a `redirectTo` method instead of a `redirectTo` property:
 
     protected function redirectTo()
