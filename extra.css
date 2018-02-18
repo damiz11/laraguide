@@ -1,0 +1,21 @@
+/*
+* @Author: William Mandai
+* @Date:   2018-02-15 07:12:07
+* @Last Modified by:   William Mandai
+* @Last Modified time: 2018-02-15 13:06:39
+*/
+@font-face {
+    font-family: 'Sofia';
+    src: url('../fonts/SofiaProMedium-webfont.eot');
+    src: url('../fonts/SofiaProMedium-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/SofiaProMedium-webfont.woff') format('woff'),
+         url('../fonts/SofiaProMedium-webfont.ttf') format('truetype'),
+         url('../fonts/SofiaProMedium-webfont.svg#sofia_pro_mediumregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+body{
+	font-family: "Sofia";
+}
